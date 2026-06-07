@@ -1,0 +1,219 @@
+/* ═══════════════════════════════════════════════
+   DEV PANEL — herramienta de testing en tiempo real
+   ·  fixed top-left, fuera del flujo del documento
+   ·  colapsado por defecto (solo tab visible)
+   ·  se expande en hover
+   ·  z-index 9999 — siempre encima de todo
+   ·  NO forma parte del producto final, solo para QA
+   ═══════════════════════════════════════════════ */
+#dev-panel {
+  position: fixed;
+  top: 20px;
+  left: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: flex-start;
+  /* Desplazado a la izquierda; solo el tab asoma */
+  transform: translateX(calc(-100% + 36px));
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
+  pointer-events: auto;
+  filter: drop-shadow(4px 4px 16px rgba(0,0,0,.28));
+}
+#dev-panel:hover,
+#dev-panel.pinned {
+  transform: translateX(0);
+}
+
+/* Tab lateral — siempre visible */
+.dev-tab {
+  width: 36px;
+  min-height: 80px;
+  background: #1a1a2e;
+  border-radius: 0 10px 10px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 10px 0;
+  order: 2; /* aparece a la derecha del panel */
+}
+.dev-tab-label {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-family: 'Poppins', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #7c83ff;
+  user-select: none;
+  margin-top: 4px;
+}
+.dev-tab-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #7c83ff;
+  flex-shrink: 0;
+}
+.dev-tab-dot.active-live     { background: #0FA8A8; box-shadow: 0 0 0 3px rgba(15,168,168,.3); }
+.dev-tab-dot.active-soon     { background: #FF6600; box-shadow: 0 0 0 3px rgba(255,102,0,.3); }
+.dev-tab-dot.active-finished { background: #A3ABB2; }
+.dev-tab-dot.active-noreg    { background: #FF6600; box-shadow: 0 0 0 3px rgba(255,102,0,.3); }
+.dev-tab-dot.active-idle     { background: #3D5878; }
+.dev-tab-dot.active-combo    { background: linear-gradient(135deg,#0FA8A8,#FF6600); background: #e67e22; }
+
+/* Panel body */
+.dev-body {
+  background: #1a1a2e;
+  border-radius: 0 0 0 0;
+  width: 240px;
+  order: 1; /* aparece a la izquierda del tab */
+  overflow: hidden;
+}
+
+/* Header del panel */
+.dev-header {
+  background: #12122a;
+  padding: 10px 14px 9px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+.dev-header-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #7c83ff;
+}
+.dev-pin {
+  font-size: 11px;
+  cursor: pointer;
+  color: rgba(255,255,255,.3);
+  background: none;
+  border: none;
+  padding: 2px 5px;
+  border-radius: 5px;
+  transition: color .15s, background .15s;
+  font-family: monospace;
+}
+.dev-pin:hover        { color: #fff; background: rgba(255,255,255,.08); }
+.dev-pin.pinned-on    { color: #7c83ff; }
+
+/* Secciones */
+.dev-section {
+  padding: 10px 12px 12px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.dev-section:last-child { border-bottom: none; }
+.dev-section-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.3);
+  margin-bottom: 8px;
+  padding-left: 2px;
+}
+
+/* Botones de escenario */
+.dev-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255,255,255,.7);
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: background .12s, border-color .12s, color .12s;
+  margin-bottom: 5px;
+}
+.dev-btn:last-child { margin-bottom: 0; }
+.dev-btn:hover { background: rgba(255,255,255,.1); color: #fff; border-color: rgba(255,255,255,.15); }
+.dev-btn.active-scenario {
+  background: rgba(124,131,255,.15);
+  border-color: rgba(124,131,255,.4);
+  color: #c0c4ff;
+}
+.dev-btn .dev-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.db-live     { background: rgba(15,168,168,.25); color: #5dd8d8; }
+.db-soon     { background: rgba(255,102,0,.25);  color: #ffaa6e; }
+.db-fin      { background: rgba(163,171,178,.2); color: #b8bfc5; }
+.db-noreg    { background: rgba(255,102,0,.2);   color: #ffaa6e; }
+.db-idle     { background: rgba(61,88,120,.3);   color: #90aac8; }
+.db-combo    { background: rgba(124,131,255,.2); color: #b0b6ff; }
+
+/* Indicador de estado actual */
+.dev-status-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 10px;
+  background: rgba(255,255,255,.04);
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.06);
+}
+.dev-status-led {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dev-status-text {
+  font-family: 'Poppins', sans-serif;
+  font-size: 11px;
+  color: rgba(255,255,255,.6);
+  font-weight: 500;
+}
+.dev-status-name {
+  font-weight: 700;
+  color: #fff;
+}
+
+/* Slider de "people in room" */
+.dev-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+.dev-slider-label {
+  font-family: 'Poppins', sans-serif;
+  font-size: 11px;
+  color: rgba(255,255,255,.45);
+  white-space: nowrap;
+}
+.dev-slider {
+  flex: 1;
+  accent-color: #7c83ff;
+  cursor: pointer;
+}
+.dev-slider-val {
+  font-family: 'Poppins', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #7c83ff;
+  min-width: 18px;
+  text-align: right;
+}

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bible Dose — Dashboard</title>
+
+<!--
+  ══════════════════════════════════════════════════════════════════
+  BIBLE DOSE · Participant Dashboard · display-v1 (Launch)
+  ══════════════════════════════════════════════════════════════════
+
+  ARQUITECTURA DE ARCHIVOS
+  ─────────────────────────
+  Este archivo es el ÚNICO archivo HTML del dashboard. Contiene:
+    1. Variables de diseño (:root) — paleta oficial del proyecto
+    2. Estilos completos (inline) — no requiere archivos CSS externos
+    3. Estructura HTML — top bar, banner, zone, history, modales
+    4. Scripts (inline) — render engine, event handlers, state machine
+
+  STACK
+  ──────
+  HTML · CSS · Vanilla JS (ES6+)
+  Google Fonts (Poppins) via CDN
+  Sin dependencias adicionales — compatible con ASP Classic backend
+
+  PUNTOS DE INTEGRACIÓN CON BACKEND
+  ───────────────────────────────────
+  Buscar el bloque "DATA — BACKEND API" en el <script>.
+  Reemplazar el objeto `data` con la respuesta real del servidor.
+
+  SCREENS INCLUIDAS
+  ──────────────────
+  · Screen 1: Dashboard (estados: live, soon, finished, noreg, idle)
+  · Screen 2: Settings (edición de contraseña)
+  · Panel: Invite Guest (split-panel, popover inline)
+
+  FUERA DE SCOPE (post-launch)
+  ──────────────────────────────
+  · Múltiples grupos por usuario
+  · RSVP
+  · Filtros Upcoming / All
+  · Add to Calendar
+  · Notas & Library
+  ══════════════════════════════════════════════════════════════════
+-->
+
+<!-- Fuente oficial del proyecto: Poppins -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="dashboard-style.css">
+<link rel="stylesheet" href="dev-style.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 1 — DASHBOARD
+     <main> es el contenido principal de la página.
+     Solo debe haber un <main> visible a la vez.
+     ══════════════════════════════════════════════ -->
+<main id="screen-dashboard" class="screen active">
+<div class="stage">
+
+  <!-- TOP BAR
+       <header> identifica el banner del sitio.
+       El logo es un <a> porque navega al inicio.
+       Los controles de usuario van en <nav>. -->
+  <header class="topbar">
+    <a class="brand" id="logoHome" href="#" aria-label="Bible Dose — ir al inicio">
+      <span class="drop" aria-hidden="true"></span>
+      <span class="name">bible dose</span>
+    </a>
+    <nav class="topbar-right" aria-label="Controles de usuario">
+      <button class="top-join u-hidden" id="topJoinBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="btn-text">Join a different study</span>
+      </button>
+
+      <!-- Wrapper relativo para que el dropdown se posicione
+           correctamente bajo el pill sin salir de la nav -->
+      <div class="profile-wrap">
+        <!-- Profile pill — button que abre el menú -->
+        <button class="profile u-hidden" id="profileBtn" type="button"
+                aria-haspopup="true" aria-expanded="false"
+                aria-controls="profileDrop"
+                aria-label="Menú de perfil">
+          <span class="pavatar" id="profileAvatar" aria-hidden="true">J</span>
+          <span class="pname"   id="profileName">Jordan</span>
+          <svg class="pcaret" viewBox="0 0 24 24" width="16" height="16"
+               fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </button>
+
+        <!-- Dropdown — sibling del button, NO anidado dentro.
+             Un <button> no puede contener elementos interactivos. -->
+        <ul class="profile-drop u-hidden" id="profileDrop" role="menu">
+          <li role="none">
+            <button id="settingsBtn" type="button" role="menuitem">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+              </svg>
+              Settings
+            </button>
+          </li>
+          <li role="none">
+            <button class="logout" id="logoutBtn" type="button" role="menuitem">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+              </svg>
+              Log out
+            </button>
+          </li>
+        </ul>
+      </div><!-- /profile-wrap -->
+    </nav>
+  </header><!-- /topbar -->
+
+  <!-- WELCOME BANNER
+       <section> con aria-label describe una región
+       autónoma de la página. aria-live="polite"
+       anuncia cambios al lector de pantalla sin
+       interrumpir lo que esté leyendo. -->
+  <section id="welcomeBanner" class="welcome u-hidden"
+           aria-label="Saludo y estado de sesión"
+           aria-live="polite"></section>
+
+  <!-- NOW & NEXT ZONE
+       <section> condicional. aria-live="polite"
+       para que los cambios de lifecycle se anuncien. -->
+  <section id="liveZone" aria-live="polite"></section>
+
+  <!-- STUDY HISTORY / UNREGISTERED STATE
+       <section> siempre presente; su contenido
+       varía según data.registered. -->
+  <section class="card" aria-label="Historial de estudios">
+    <h2 id="listHeader" class="card-header u-hidden">Study History</h2>
+    <!-- <ul> semántico para lista de sesiones.
+         aria-labelledby vincula la lista con su heading. -->
+    <ul id="list" aria-labelledby="listHeader"></ul>
+  </section>
+
+</div><!-- /stage -->
+</main><!-- /screen-dashboard -->
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 2 — SETTINGS
+     Segundo <main> — solo uno es visible a la vez
+     gracias a .screen / .screen.active.
+     ══════════════════════════════════════════════ -->
+<main id="screen-settings" class="screen">
+<div class="stage">
+
+  <!-- Top bar de settings — misma estructura semántica -->
+  <header class="topbar">
+    <a class="brand" id="settingsLogoHome" href="#" aria-label="Ir al inicio">
+      <span class="drop" aria-hidden="true"></span>
+      <span class="name">bible dose</span>
+    </a>
+    <nav class="topbar-right" aria-label="Controles de usuario">
+      <button class="top-join" id="settingsTopJoinBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="btn-text">Join a different study</span>
+      </button>
+      <!-- pill estático: no es interactivo, solo informativo -->
+      <div class="profile profile--static" aria-label="Usuario actual" aria-hidden="true">
+        <span class="pavatar" id="settingsAvatar">J</span>
+        <span class="pname"   id="settingsName">Jordan</span>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Botón volver — <button> nativo, no necesita role -->
+  <button class="settings-back" id="backToDashboard" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path d="M19 12H5M12 5l-7 7 7 7"/>
+    </svg>
+    Back to dashboard
+  </button>
+
+  <!-- Tarjeta de configuración — <section> con heading propio -->
+  <section class="settings-card" aria-labelledby="settingsHeading">
+    <h1 class="settings-title" id="settingsHeading">Settings</h1>
+    <p class="settings-sub">Manage your account and security preferences.</p>
+
+    <hr class="settings-divider">
+
+    <!-- Formulario de cambio de contraseña.
+         <form> real con novalidate para usar validación
+         propia. type="submit" en el botón permite que
+         Enter dentro de cualquier campo lo dispare. -->
+    <form id="formPassword" novalidate aria-labelledby="pwHeading">
+      <h2 class="settings-section-title" id="pwHeading">Change Password</h2>
+
+      <div class="field-group">
+        <label class="field-label" for="currentPassword">Current password</label>
+        <input
+          class="field-input"
+          type="password"
+          id="currentPassword"
+          name="currentPassword"
+          autocomplete="current-password"
+          placeholder="Enter your current password"
+          aria-describedby="currentPasswordError"
+          aria-invalid="false"
+          required
+        >
+        <p class="field-error" id="currentPasswordError" role="alert" aria-live="polite">
+          Incorrect password. Please try again.
+        </p>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="newPassword">New password</label>
+        <input
+          class="field-input"
+          type="password"
+          id="newPassword"
+          name="newPassword"
+          autocomplete="new-password"
+          placeholder="At least 8 characters"
+          minlength="8"
+          aria-describedby="newPasswordHint newPasswordError"
+          aria-invalid="false"
+          required
+        >
+        <p class="field-hint" id="newPasswordHint">
+          Use 8 or more characters with a mix of letters and numbers.
+        </p>
+        <p class="field-error" id="newPasswordError" role="alert" aria-live="polite">
+          Password must be at least 8 characters.
+        </p>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="confirmPassword">Confirm new password</label>
+        <input
+          class="field-input"
+          type="password"
+          id="confirmPassword"
+          name="confirmPassword"
+          autocomplete="new-password"
+          placeholder="Re-enter new password"
+          aria-describedby="confirmPasswordError"
+          aria-invalid="false"
+          required
+        >
+        <p class="field-error" id="confirmPasswordError" role="alert" aria-live="polite">
+          Passwords do not match.
+        </p>
+      </div>
+
+      <div class="actions actions--form">
+        <button class="btn btn-primary btn-primary--settings" type="submit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+            <path d="M17 21v-8H7v8M7 3v5h8"/>
+          </svg>
+          Save password
+        </button>
+      </div>
+    </form>
+
+  </section><!-- /settings-card -->
+
+</div><!-- /stage -->
+</main><!-- /screen-settings -->
+
+
+
+<!-- ══════════════════════════════════════════════
+     DEV PANEL — QA / testing tool
+     Fijo en top-left. Solo visible en esta build.
+     Se expande en hover, se puede pinear con click.
+     ══════════════════════════════════════════════ -->
+<div id="dev-panel" role="complementary" aria-label="Dev testing panel">
+ 
+  <div class="dev-body">
+    <div class="dev-header">
+      <span class="dev-header-title">⚡ Dev Panel</span>
+      <button class="dev-pin" id="devPinBtn" title="Pinear panel abierto">pin</button>
+    </div>
+ 
+    <div class="dev-section">
+      <div class="dev-section-title">Estado activo</div>
+      <div class="dev-status-row">
+        <span class="dev-status-led" id="devStatusLed"></span>
+        <span class="dev-status-text">Escenario: <span class="dev-status-name" id="devStatusName">—</span></span>
+      </div>
+    </div>
+ 
+    <div class="dev-section">
+      <div class="dev-section-title">Lifecycle · Zone</div>
+      <button class="dev-btn" data-scenario="live">🔴 Live now <span class="dev-badge db-live">LIVE</span></button>
+      <button class="dev-btn" data-scenario="soon">🟠 Starting soon (20 min) <span class="dev-badge db-soon">SOON</span></button>
+      <button class="dev-btn" data-scenario="soon5s">⏱ Soon → Live in 10 s <span class="dev-badge db-soon">TEST</span></button>
+      <button class="dev-btn" data-scenario="finished">⚪ Just finished <span class="dev-badge db-fin">DONE</span></button>
+      <button class="dev-btn" data-scenario="combo">🌈 Live + Soon + Finished <span class="dev-badge db-combo">ALL</span></button>
+      <button class="dev-btn" data-scenario="idle">🌙 Idle (no session) <span class="dev-badge db-idle">IDLE</span></button>
+    </div>
+ 
+    <div class="dev-section">
+      <div class="dev-section-title">Usuario</div>
+      <button class="dev-btn" data-scenario="noreg">👤 Unregistered user <span class="dev-badge db-noreg">NOREG</span></button>
+      <button class="dev-btn" data-scenario="live">✅ Registered (reset) <span class="dev-badge db-live">REG</span></button>
+    </div>
+ 
+    <div class="dev-section u-hidden" id="devPresenceSection">
+      <div class="dev-section-title">People in room</div>
+      <div class="dev-slider-row">
+        <span class="dev-slider-label">1</span>
+        <input class="dev-slider" id="devPresenceSlider" type="range" min="1" max="24" value="8" step="1">
+        <span class="dev-slider-label">24</span>
+        <span class="dev-slider-val" id="devPresenceVal">8</span>
+      </div>
+    </div>
+ 
+    <div class="dev-section">
+      <div class="dev-section-title">Pantallas</div>
+      <button class="dev-btn" data-screen="dashboard">🏠 Dashboard</button>
+      <button class="dev-btn" data-screen="settings">⚙️ Settings</button>
+    </div>
+  </div>
+ 
+  <div class="dev-tab" id="devTab" title="Dev Panel">
+    <span class="dev-tab-dot" id="devTabDot"></span>
+    <span class="dev-tab-label">DEV</span>
+  </div>
+ 
+</div><!-- /dev-panel -->
+
+<!-- INVITE MODAL ROOT — nodo de montaje del modal de invitación.
+     openInviteModal() escribe aquí. Debe existir siempre en el DOM. -->
+<div id="inv-modal-root"></div>
+
+<!-- TOAST GLOBAL — para confirmaciones -->
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+    <path d="M20 6L9 17l-5-5"/>
+  </svg>
+  <span id="toastMsg">Changes saved</span>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     JAVASCRIPT — RENDER ENGINE + STATE MACHINE
+     ══════════════════════════════════════════════ -->
+<script src="dashboard-script.js"></script>
+<script src="dev-panel.js"></script>
+</body>
+</html>

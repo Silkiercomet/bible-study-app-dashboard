@@ -727,7 +727,7 @@ document.addEventListener('click', e => {
       setTimeout(() => {
         if (state.popover?.id === id) {
           state.popover = { id, copied: false, sent: state.popover.sent };
-          openInviteModal(id);
+          closeInviteModal();
         }
       }, 2000);
     }

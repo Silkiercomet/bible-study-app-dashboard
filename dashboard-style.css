@@ -573,7 +573,7 @@ hr.div { border: none; border-top: 1px solid var(--line); margin: 18px 0; }
   /* box-sizing heredado del reset global */
   box-sizing: border-box;
 }
-.inv-field:focus { border-color: var(--teal); }
+.inv-field:focus { border-color: var(--orange); }
 .inv-field.error { border-color: #D93025; }
 
 /* Reset del <form> dentro de .inv-col —
@@ -845,7 +845,7 @@ hr.div { border: none; border-top: 1px solid var(--line); margin: 18px 0; }
   transition: border-color .15s;
   background: #fff;
 }
-.field-input:focus { border-color: var(--teal); }
+.field-input:focus { border-color: var(--orange); }
 .field-input.error { border-color: #D93025; }
 
 .field-hint {
